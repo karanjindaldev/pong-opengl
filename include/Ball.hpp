@@ -51,7 +51,7 @@ public:
         }
 
         if(Y+height/2 < player_downY || Y-height/2 > player_upY){
-                return;
+            return;
         }
 
         velX = -velX;

@@ -38,30 +38,24 @@ int main(){
         return -1;
     }
 
-    float vertex_data[] = {
-        -0.5f, -0.5f,
-        0.0f, 0.5f,
-        0.5f, -0.5f
-    };
-
     float player1_x_right = 0.98f;
     float player1_y = 0.0f;
 
     float player1_vertex_data[] = {
-        -1.0f, -0.35f,
-        -1.0f, 0.35f,
-        -player1_x_right, -0.35f,
-        -player1_x_right, 0.35f 
+        -1.0f, -0.25f,
+        -1.0f, 0.25f,
+        -player1_x_right, -0.25f,
+        -player1_x_right, 0.25f 
     };
 
     float player2_x_left = 0.98f;
     float player2_y = 0.0f;
 
     float player2_vertex_data[] = {
-        1.0f, -0.35f,
-        1.0f, 0.35f,
-        player2_x_left, -0.35f,
-        player2_x_left, 0.35f 
+        1.0f, -0.25f,
+        1.0f, 0.25f,
+        player2_x_left, -0.25f,
+        player2_x_left, 0.25f 
     };
 
     Ball ball;
@@ -112,8 +106,8 @@ int main(){
             ball.Move(deltaTime);
         }
 
-        ball.AABBCollision(-player1_x_right, player1_y+0.35f, player1_y-0.35f, true);
-        ball.AABBCollision(player2_x_left, player2_y+0.35f, player2_y-0.35f, false);
+        ball.AABBCollision(-player1_x_right, player1_y+0.25f, player1_y-0.25f, true);
+        ball.AABBCollision(player2_x_left, player2_y+0.25f, player2_y-0.25f, false);
         ball.DetectWallCollision();
         gameManager.CheckState(ball);
 
@@ -157,6 +151,6 @@ void processInput(GLFWwindow* window, float& player1_y, float& player2_y, float 
         player2_y-=1.0f*deltaTime;
     }
 
-    player1_y = std::min(std::max(player1_y, -0.65f), 0.65f);
-    player2_y = std::min(std::max(player2_y, -0.65f), 0.65f);
+    player1_y = std::min(std::max(player1_y, -0.75f), 0.75f);
+    player2_y = std::min(std::max(player2_y, -0.75f), 0.75f);
 }
