@@ -8,6 +8,7 @@
 #include "VertexBufferLayout.hpp"
 #include "VertexArray.hpp"
 #include "Shader.hpp"
+#include "Texture.hpp"
 #include "ErrorHandling.hpp"
 #include "Ball.hpp"
 #include "GameManager.hpp"
@@ -67,6 +68,13 @@ int main(){
         -ball.width/2, -ball.height/2
     };
 
+    float background_vertices[] = {
+        -1.0f, -1.0f, 0.0f, 0.0f,
+        -1.0f, 1.0f, 0.0f, 1.0f,
+        1.0f, -1.0f, 1.0f, 0.0f,
+        1.0f, 1.0f, 1.0f, 1.0f
+    };
+
     unsigned int indices[] = {
         0, 1, 2,
         2, 1, 3
@@ -78,6 +86,7 @@ int main(){
     VertexBuffer player1_vbo(player1_vertex_data, sizeof(player1_vertex_data));
     VertexBuffer player2_vbo(player2_vertex_data, sizeof(player2_vertex_data));
     VertexBuffer ball_vbo(ball_vertices, sizeof(ball_vertices));
+    VertexBuffer background_vbo(background_vertices, sizeof(background_vertices));
     IndexBuffer ibo(indices, sizeof(indices));
     
     VertexBufferLayout layout;
@@ -92,7 +101,18 @@ int main(){
     VertexArray ball_vao;
     ball_vao.AddBuffersAndLayout(ball_vbo, ibo, layout);
 
+    layout.Push<float>(2);
+
+    VertexArray background_vao;
+    background_vao.AddBuffersAndLayout(background_vbo, ibo, layout);
+
     Shader shader("../res/shaders/basic.vert.glsl", "../res/shaders/basic.frag.glsl");
+    Shader texShader("../res/shaders/texture.vert.glsl", "../res/shaders/texture.frag.glsl");
+    Texture texture("../res/textures/background.jpg");
+
+    texture.Bind(1);
+    texShader.Bind();
+    texShader.SetUniform1i("textureSampler", texture.slot);
     
     while(!glfwWindowShouldClose(window)){
         currentFrameTime = glfwGetTime();
@@ -112,13 +132,17 @@ int main(){
         gameManager.CheckState(ball);
 
         Renderer::ClearScreen();
+        renderer.Draw(background_vao, texShader);
 
+        shader.Bind();
         shader.SetUniform2f("offset", 0.0f, player1_y);
         renderer.Draw(player1_vao, shader);
 
+        shader.Bind();
         shader.SetUniform2f("offset", 0.0f, player2_y);
         renderer.Draw(player2_vao, shader);
 
+        shader.Bind();
         shader.SetUniform2f("offset", ball.X, ball.Y);
         renderer.Draw(ball_vao, shader);
 

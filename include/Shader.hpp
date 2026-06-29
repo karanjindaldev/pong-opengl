@@ -70,6 +70,13 @@ public:
         }
     }
 
+    void SetUniform1i(const char* uniformName, unsigned int slot) const {
+        int location = glGetUniformLocation(this->rendererID, uniformName);
+        if(location!=-1){
+            glUniform1i(location, slot);
+        }
+    }
+
     ~Shader(){
         glDeleteProgram(this->rendererID);
     }
