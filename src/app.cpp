@@ -9,6 +9,7 @@
 #include "VertexArray.hpp"
 #include "Shader.hpp"
 #include "ErrorHandling.hpp"
+#include "Ball.hpp"
 
 void frameBufferCallback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window, float& player1_y, float& player2_y, float deltaTime);
@@ -64,16 +65,13 @@ int main(){
         player2_x_left, 0.35f 
     };
 
-    float ball_X = 0.0f;
-    float ball_Y = 0.0f;
-    float velocity_X = 1.0f;
-    float velocity_Y = 1.0f;
+    Ball ball;
 
     float ball_vertices[] = {
-        0.0135f, 0.024f,
-        0.0135f, -0.024f,
-        -0.0135f, 0.024f,
-        -0.0135f, -0.024f
+        ball.width/2, ball.height/2,
+        ball.width/2, -ball.height/2,
+        -ball.width/2, ball.height/2,
+        -ball.width/2, -ball.height/2
     };
 
     unsigned int indices[] = {
@@ -97,8 +95,8 @@ int main(){
     VertexArray player2_vao;
     player2_vao.AddBuffersAndLayout(player2_vbo, ibo, layout);
 
-    VertexArray ball;
-    ball.AddBuffersAndLayout(ball_vbo, ibo, layout);
+    VertexArray ball_vao;
+    ball_vao.AddBuffersAndLayout(ball_vbo, ibo, layout);
 
     Shader shader("../res/shaders/basic.vert.glsl", "../res/shaders/basic.frag.glsl");
     
@@ -111,19 +109,12 @@ int main(){
         processInput(window, player1_y, player2_y, deltaTime);
         
         if(startGame){
-            ball_X+=velocity_X*deltaTime;
-            ball_Y+=velocity_Y*deltaTime;
+            ball.Move(deltaTime);
         }
 
-        ball_Y = std::min(std::max(-0.976f, ball_Y), 0.976f);
-
-        if(ball_Y>=0.976 || ball_Y<=-0.976){
-            velocity_Y=-velocity_Y;
-        }
-
-        if(ball_X>=0.9865 || ball_X<=-0.9865){
-            velocity_X=-velocity_X;
-        }
+        ball.AABBCollision(-player1_x_right, player1_y+0.35f, player1_y-0.35f, true);
+        ball.AABBCollision(player2_x_left, player2_y+0.35f, player2_y-0.35f, false);
+        ball.DetectWallCollision();
 
         Renderer::ClearScreen();
 
@@ -133,8 +124,8 @@ int main(){
         shader.SetUniform2f("offset", 0.0f, player2_y);
         renderer.Draw(player2_vao, shader);
 
-        shader.SetUniform2f("offset", ball_X, ball_Y);
-        renderer.Draw(ball, shader);
+        shader.SetUniform2f("offset", ball.X, ball.Y);
+        renderer.Draw(ball_vao, shader);
 
         glfwSwapBuffers(window);
     }
