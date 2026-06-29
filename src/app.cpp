@@ -1,5 +1,6 @@
 #include <glad/gl.h>
 #include <GLFW/glfw3.h>
+#include <algorithm>
 #include <iostream>
 
 #include "Renderer.hpp"
@@ -9,7 +10,8 @@
 #include "Shader.hpp"
 #include "ErrorHandling.hpp"
 
-void frameBufferCallback(GLFWwindow*, int, int);
+void frameBufferCallback(GLFWwindow* window, int width, int height);
+void processInput(GLFWwindow* window, float& player1_y, float& player2_y, float deltaTime);
 
 int main(){
     if(glfwInit()!=GLFW_TRUE){
@@ -23,6 +25,11 @@ int main(){
     GLFWwindow* window = glfwCreateWindow(1280, 720, "Pong", nullptr, nullptr);
     glfwMakeContextCurrent(window);
 
+    float deltaTime = 0.0f;
+    float currentFrameTime = 0.0f;
+    float lastFrameTime = 0.0f;
+
+    // glfwSwapInterval(1);
     glfwSetFramebufferSizeCallback(window, frameBufferCallback);
     
     if(!gladLoadGL(glfwGetProcAddress)){
@@ -42,12 +49,16 @@ int main(){
         -0.98f, 0.35f 
     };
 
+    float player1_y = 0.0f;
+
     float player2_vertex_data[] = {
         1.0f, -0.35f,
         1.0f, 0.35f,
         0.98f, -0.35f,
         0.98f, 0.35f 
     };
+
+    float player2_y = 0.0f;
 
     unsigned int indices[] = {
         0, 1, 2,
@@ -70,11 +81,19 @@ int main(){
     player2_vao.AddBuffersAndLayout(player2_vbo, ibo, layout);
 
     Shader shader("../res/shaders/basic.vert.glsl", "../res/shaders/basic.frag.glsl");
-
+    
     while(!glfwWindowShouldClose(window)){
+        currentFrameTime = glfwGetTime();
+        deltaTime = currentFrameTime - lastFrameTime;
+        lastFrameTime = currentFrameTime;
+
         glfwPollEvents();
+        processInput(window, player1_y, player2_y, deltaTime);
+        
         Renderer::ClearScreen();
+        shader.SetUniform1f("y", player1_y);
         renderer.Draw(player1_vao, shader);
+        shader.SetUniform1f("y", player2_y);
         renderer.Draw(player2_vao, shader);
 
         glfwSwapBuffers(window);
@@ -87,4 +106,22 @@ void frameBufferCallback(GLFWwindow* window, int width, int height){
     int viewport[4];
     glGetIntegerv(GL_VIEWPORT, viewport);
     glViewport(viewport[0], viewport[1], width, height);
+}
+
+void processInput(GLFWwindow* window, float& player1_y, float& player2_y, float deltaTime){
+    if(glfwGetKey(window, GLFW_KEY_W)==GLFW_PRESS){
+        player1_y+=1.0f*deltaTime;
+    }
+    if(glfwGetKey(window, GLFW_KEY_UP)==GLFW_PRESS){
+        player2_y+=1.0f*deltaTime;
+    }
+    if(glfwGetKey(window, GLFW_KEY_S)==GLFW_PRESS){
+        player1_y-=1.0f*deltaTime;
+    }
+    if(glfwGetKey(window, GLFW_KEY_DOWN)==GLFW_PRESS){
+        player2_y-=1.0f*deltaTime;
+    }
+
+    player1_y = std::min(std::max(player1_y, -0.65f), 0.65f);
+    player2_y = std::min(std::max(player2_y, -0.65f), 0.65f);
 }

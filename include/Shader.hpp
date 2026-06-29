@@ -56,7 +56,7 @@ public:
         glUseProgram(0);
     }
 
-    void SetUniform1f(const char* uniformName, float value){
+    void SetUniform1f(const char* uniformName, float value) const {
         int location = glGetUniformLocation(this->rendererID, uniformName);
         if(location!=-1){
             glUniform1f(location, value);
