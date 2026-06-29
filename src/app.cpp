@@ -10,11 +10,10 @@
 #include "Shader.hpp"
 #include "ErrorHandling.hpp"
 #include "Ball.hpp"
+#include "GameManager.hpp"
 
 void frameBufferCallback(GLFWwindow* window, int width, int height);
-void processInput(GLFWwindow* window, float& player1_y, float& player2_y, float deltaTime);
-
-bool startGame = false;
+void processInput(GLFWwindow* window, float& player1_y, float& player2_y, float deltaTime, bool& startGame);
 
 int main(){
     if(glfwInit()!=GLFW_TRUE){
@@ -80,6 +79,7 @@ int main(){
     };
 
     Renderer renderer(0, 0, 1280, 720);
+    GameManager gameManager;
 
     VertexBuffer player1_vbo(player1_vertex_data, sizeof(player1_vertex_data));
     VertexBuffer player2_vbo(player2_vertex_data, sizeof(player2_vertex_data));
@@ -106,15 +106,16 @@ int main(){
         lastFrameTime = currentFrameTime;
 
         glfwPollEvents();
-        processInput(window, player1_y, player2_y, deltaTime);
+        processInput(window, player1_y, player2_y, deltaTime, gameManager.startGame);
         
-        if(startGame){
+        if(gameManager.startGame){
             ball.Move(deltaTime);
         }
 
         ball.AABBCollision(-player1_x_right, player1_y+0.35f, player1_y-0.35f, true);
         ball.AABBCollision(player2_x_left, player2_y+0.35f, player2_y-0.35f, false);
         ball.DetectWallCollision();
+        gameManager.CheckState(ball);
 
         Renderer::ClearScreen();
 
@@ -139,7 +140,7 @@ void frameBufferCallback(GLFWwindow* window, int width, int height){
     glViewport(viewport[0], viewport[1], width, height);
 }
 
-void processInput(GLFWwindow* window, float& player1_y, float& player2_y, float deltaTime){
+void processInput(GLFWwindow* window, float& player1_y, float& player2_y, float deltaTime, bool& startGame){
     if(glfwGetKey(window, GLFW_KEY_SPACE)==GLFW_PRESS){
         startGame = true;
     }
