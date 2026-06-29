@@ -63,6 +63,13 @@ public:
         }
     }
 
+    void SetUniform2f(const char* uniformName, float value1, float value2) const {
+        int location = glGetUniformLocation(this->rendererID, uniformName);
+        if(location!=-1){
+            glUniform2f(location, value1, value2);
+        }
+    }
+
     ~Shader(){
         glDeleteProgram(this->rendererID);
     }
