@@ -5,18 +5,19 @@
 #include "VertexBuffer.hpp"
 #include "VertexBufferLayout.hpp"
 
-#include <iostream>
-
 class VertexArray{
 private:
-    unsigned int renderedID;
+    unsigned int rendererID;
 
 public:
+    unsigned int vertexCount;
+
     VertexArray(){
-        glCreateVertexArrays(1, &renderedID);
+        glCreateVertexArrays(1, &rendererID);
     }
 
     void AddBufferAndLayout(const VertexBuffer& vbo, const VertexBufferLayout& layout){
+        this->vertexCount = vbo.GetVertexCount();
         int offset = 0;
         vbo.Bind();
         this->Bind();
@@ -29,14 +30,14 @@ public:
     }
 
     void Bind() const {
-        glBindVertexArray(renderedID);
+        glBindVertexArray(rendererID);
     }
 
     void Unbind() const {
-        glBindVertexArray(renderedID);
+        glBindVertexArray(rendererID);
     }
 
     ~VertexArray(){
-        glDeleteVertexArrays(1, &renderedID);
+        glDeleteVertexArrays(1, &rendererID);
     }
 };

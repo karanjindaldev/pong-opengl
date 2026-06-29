@@ -4,7 +4,6 @@
 #include <fstream>
 #include <sstream>
 #include <string>
-#include <iostream>
 
 class Shader{
 private:
@@ -44,6 +43,9 @@ public:
         glAttachShader(this->rendererID, vs);
         glAttachShader(this->rendererID, fs);
         glLinkProgram(this->rendererID);
+
+        glDeleteShader(vs);
+        glDeleteShader(fs);
     }
 
     void Bind() const {
