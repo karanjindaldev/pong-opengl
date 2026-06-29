@@ -35,11 +35,18 @@ int main(){
         0.5f, -0.5f
     };
 
-    float vertex_data_rectangle[] = {
+    float player1_vertex_data[] = {
         -1.0f, -0.35f,
         -1.0f, 0.35f,
         -0.98f, -0.35f,
         -0.98f, 0.35f 
+    };
+
+    float player2_vertex_data[] = {
+        1.0f, -0.35f,
+        1.0f, 0.35f,
+        0.98f, -0.35f,
+        0.98f, 0.35f 
     };
 
     unsigned int indices[] = {
@@ -49,21 +56,26 @@ int main(){
 
     Renderer renderer(0, 0, 1280, 720);
 
-    VertexBuffer vbo(vertex_data_rectangle, sizeof(vertex_data_rectangle));
+    VertexBuffer player1_vbo(player1_vertex_data, sizeof(player1_vertex_data));
+    VertexBuffer player2_vbo(player2_vertex_data, sizeof(player2_vertex_data));
     IndexBuffer ibo(indices, sizeof(indices));
+    
     VertexBufferLayout layout;
-
     layout.Push<float>(2);
 
-    VertexArray vao;
-    vao.AddBufferAndLayout(vbo, layout);
+    VertexArray player1_vao;
+    player1_vao.AddBuffersAndLayout(player1_vbo, ibo, layout);
+
+    VertexArray player2_vao;
+    player2_vao.AddBuffersAndLayout(player2_vbo, ibo, layout);
 
     Shader shader("../res/shaders/basic.vert.glsl", "../res/shaders/basic.frag.glsl");
 
     while(!glfwWindowShouldClose(window)){
         glfwPollEvents();
-
-        renderer.Draw(vao, shader, ibo);
+        Renderer::ClearScreen();
+        renderer.Draw(player1_vao, shader);
+        renderer.Draw(player2_vao, shader);
 
         glfwSwapBuffers(window);
     }

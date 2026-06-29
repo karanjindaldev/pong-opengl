@@ -4,6 +4,7 @@
 
 #include "VertexBuffer.hpp"
 #include "VertexBufferLayout.hpp"
+#include "IndexBuffer.hpp"
 
 class VertexArray{
 private:
@@ -11,16 +12,19 @@ private:
 
 public:
     unsigned int vertexCount;
+    unsigned int indexCount;
 
     VertexArray(){
         glCreateVertexArrays(1, &rendererID);
     }
 
-    void AddBufferAndLayout(const VertexBuffer& vbo, const VertexBufferLayout& layout){
+    void AddBuffersAndLayout(const VertexBuffer& vbo, const IndexBuffer& ibo, const VertexBufferLayout& layout){
         this->vertexCount = vbo.GetVertexCount();
+        this->indexCount = ibo.count;
         int offset = 0;
         vbo.Bind();
         this->Bind();
+        ibo.Bind();
         for(int i=0; i<layout.elements.size(); i++){
             glVertexAttribPointer(i, layout.elements[i].count, layout.elements[i].type, GL_FALSE, layout.stride, (const void*)offset);
             glEnableVertexAttribArray(i);
@@ -34,7 +38,7 @@ public:
     }
 
     void Unbind() const {
-        glBindVertexArray(rendererID);
+        glBindVertexArray(0);
     }
 
     ~VertexArray(){
